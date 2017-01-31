@@ -9,7 +9,7 @@ class File:
     def write(self, resource):
         filename = os.path.join(self.basedir, resource.path)
         self.mkdir_p(os.path.dirname(filename))
-        with open(filename, "w") as file:
+        with open(filename, "wb") as file:
             file.write(resource.content)
 
     def list(self):

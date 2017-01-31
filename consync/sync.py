@@ -91,7 +91,7 @@ class ConSync:
 
     def process(self, all_resources, resources):
         for resource in all_resources:
-            resource.content = ""
+            resource.content = b''
             for plugin in self.plugins:
                 plugin.read(resource)
         for plugin in self.plugins:

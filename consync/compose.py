@@ -22,7 +22,7 @@ class Compose:
     def read(self, resource):
         filepath = path.join(self.basepath, resource.path)
         if path.exists(filepath):
-            with open(filepath) as f:
+            with open(filepath,"rb") as f:
                 resource.content = f.read()
 
     def filter_resources(self, resources):

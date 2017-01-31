@@ -22,7 +22,7 @@ class Reader:
     def read(self, resource):
         filepath = path.join(self.confdir, resource.path)
         if path.exists(filepath):
-            with open(filepath) as f:
+            with open(filepath, "rb") as f:
                 resource.content = f.read()
 
     def filter_resources(self, resources):

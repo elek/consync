@@ -33,3 +33,4 @@ class Consul:
             return [os.path.relpath(entry['Key'],self.prefix) for entry in entries]
         else:
             print("Error on getting existing keys ")
+            return []

@@ -13,7 +13,7 @@ class ResourceLoader(BaseLoader):
         source = [resource for resource in self.resources if resource.path == template]
         if (len(source)):
             self.included.extend(source[0].sources)
-            return (source[0].content,None, lambda: True)
+            return (source[0].content.decode("utf-8"),None, lambda: True)
         else:
             raise TemplateNotFound(template)
 
@@ -32,13 +32,15 @@ class Template:
         return resources
 
     def transform_content(self, resources, resource):
+        if resource.path.endswith("keystore"):
+            return
         loader = ResourceLoader(resources)
         t = Environment(
             loader=loader,
             undefined=StrictUndefined,
             variable_start_string="${",
             variable_end_string="}"
-        ).from_string(resource.content)
-        resource.content = t.render(os.environ)
+        ).from_string(resource.content.decode("utf-8"))
+        resource.content = t.render(os.environ).encode("utf-8")
         resource.sources.extend([source for source in loader.included if source not in resource.sources])
 
