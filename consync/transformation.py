@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import base64
 from collections import OrderedDict
 
 
@@ -52,7 +51,7 @@ def to_yaml(content):
         else:
             node[parts[-1]] = props[key]
 
-    return render_yaml(yaml_props).encode('utf-8')
+    return render_yaml(yaml_props)
 
 def to_yml(content):
     return to_yaml(content)
@@ -62,7 +61,7 @@ def to_properties(content):
     props = process_properties(content)
     for key in props.keys():
         result += "{}: {}\n".format(key, props[key])
-    return result.encode('utf-8')
+    return result
 
 
 def to_env(content):
@@ -78,7 +77,7 @@ def to_sh(content):
     props = process_properties(content)
     for key in props.keys():
         result += "export {}=\"{}\"\n".format(key, props[key])
-    return result.encode('utf-8')
+    return result
 
 
 def to_cfg(content):
@@ -86,7 +85,7 @@ def to_cfg(content):
     props = process_properties(content)
     for key in props.keys():
         result += "{}={}\n".format(key, props[key])
-    return result.encode('utf-8')
+    return result
 
 
 def to_conf(content):
@@ -94,7 +93,7 @@ def to_conf(content):
     props = process_properties(content)
     for key in props.keys():
         result += "export {} {}\n".format(key, props[key])
-    return result.encode('utf-8')
+    return result
 
 
 def to_xml(content):
@@ -103,7 +102,7 @@ def to_xml(content):
     for key in props.keys():
         result += "<property><name>{0}</name><value>{1}</value></property>\n".format(key, props[key])
     result += "</configuration>"
-    return result.encode('utf-8')
+    return result
 
 def to_base64(content):
     return content;
@@ -114,7 +113,7 @@ def process_properties(content, sep=': ', comment_char='#'):
     Read the file passed as parameter as a properties file.
     """
     props = OrderedDict()
-    for line in content.decode('utf-8').split("\n"):
+    for line in content.split("\n"):
         l = line.strip()
         if l and not l.startswith(comment_char):
             key_value = l.split(sep)

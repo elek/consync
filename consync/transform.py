@@ -2,10 +2,17 @@ import os
 import re
 from . import transformation
 
-
 class Transform:
-    def __init__(self, basepath):
-        self.basepath = basepath
+
+    def __init__(self, config):
+        self.config = config
+        self.transformations = {}
+        self.transformations['xml'] = self.on_text(transformation.to_xml)
+        self.transformations['yaml'] = self.on_text(transformation.to_yaml)
+        self.transformations['properties'] = self.on_text(transformation.to_properties)
+        self.transformations['env'] = self.on_text(transformation.to_env)
+        self.transformations['sh'] = self.on_text(transformation.to_sh)
+
 
     def read(self, resource):
         pass
@@ -13,23 +20,18 @@ class Transform:
     def collect_resources(self, resources):
         return resources
 
-    def transform_content(self, resources, resource):
-        trans = self.find_transformation(resource.path, self.basepath)
-        if trans:
-            resource.content = getattr(transformation, "to_%s" % trans)(resource.content)
+    def on_text(self, text_transform):
+        def transform(resources, resource):
+            resource.content = text_transform(resource.content.decode("utf-8")).encode("utf-8")
 
-    def find_transformation(self, filepath, basepath):
-        trafofile = os.path.join(basepath, "transformations.txt")
-        transfo = ""
-        filename = os.path.basename(filepath)
-        if os.path.isfile(trafofile):
-            with open(trafofile) as f:
-                for line in f:
-                    line = line.strip()
-                    lsep = line.rfind(" ")
-                    pattern = line[0:lsep]
-                    if re.search(pattern, filename):
-                        transfo = line[lsep:].strip()
-        if transfo:
-            print("Transforming file {} to format {}".format(filepath, transfo))
-        return transfo
+        return transform
+
+    def transform_content(self, resources, resource):
+        for format in self.config['format'].keys():
+            pattern = self.config['format'][format]
+            if re.match(pattern,resource.path):
+                if format not in self.transformations:
+                    raise AssertionError("No such transformation {}".format(transformation))
+                else:
+                    self.transformations[format](resources, resource)
+

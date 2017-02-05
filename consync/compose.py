@@ -5,8 +5,9 @@ from consync.resource import Resource
 
 
 class Compose:
-    def __init__(self, basepath):
-        self.basepath = basepath
+    def __init__(self, config):
+        self.config = config
+        self.basepath = config['common']['basepath']
         self.composedir = os.path.join(self.basepath, "compose")
 
     def collect_resources(self, resources):

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import argparse
 import logging
+import os
 
+from consync.env import Env
 from watchdog.events import FileSystemEventHandler
 import time
 from consync.noop import Noop
@@ -13,6 +15,7 @@ from consync.profiles import Profiles
 from consync.consul import Consul
 from consync.file import File
 from watchdog.observers import Observer
+import configparser
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -39,15 +42,32 @@ class ConSync:
         self.basepath = args.dir
         if self.args.file:
             self.adapter = File(self.args.file)
+        elif self.args.env:
+            self.adapter = Env(self.args.env)
         else:
             self.adapter = Consul(self.args.url, self.args.prefix)
 
+        config = configparser.ConfigParser()
+        config_file = os.path.join(args.dir, 'consync.ini')
+        if os.path.exists(config_file):
+            config.read(config_file)
+
+        config['common'] = {'basepath': self.basepath}
+
+        profiles = ""
+        if self.args.profiles:
+            profiles += self.args.profiles
+        if config['profiles'].get("active",''):
+            profiles += config['profiles']['active']
+        config['profiles'] = {'active': profiles}
+
         self.plugins = []
-        self.plugins.append(Reader(self.basepath))
-        self.plugins.append(Compose(self.basepath))
-        self.plugins.append(Profiles(self.basepath, self.args.profiles))
-        self.plugins.append(Template(self.basepath))
-        self.plugins.append(Transform(self.basepath))
+        self.plugins.append(Reader(config))
+        self.plugins.append(Compose(config))
+        self.plugins.append(Profiles(config))
+        self.plugins.append(Template(config))
+        if not self.args.env:
+            self.plugins.append(Transform(config))
 
     def run(self):
         if self.args.serve:
@@ -99,6 +119,7 @@ class ConSync:
                 plugin.transform_content(all_resources, resource)
         for resource in resources:
             self.adapter.write(resource)
+        self.adapter.close()
 
 def main():
    parser = argparse.ArgumentParser()
@@ -107,6 +128,7 @@ def main():
    parser.add_argument("--serve", help="Listening for new changes and upload only the changed files", action="store_true")
    parser.add_argument("--url", help="consul server address (protocol, servername, port)")
    parser.add_argument("--file", help="Generate config files to the specified directory instead of upload to the consul")
+   parser.add_argument("--env", help="Print out prefixed variables as environment variables")
    parser.add_argument("--profiles", help="Comma separated list of the activated profiles")
    args = parser.parse_args()
    c = ConSync(args)

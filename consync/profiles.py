@@ -5,27 +5,20 @@ from consync.resource import Resource
 
 
 class Profiles:
-    def __init__(self, basepath, profiles):
-        self.basepath = basepath
-        self.profilesdir = os.path.join(basepath, "profiles")
-        profile_file = os.path.join(basepath, "profiles.txt")
-        self.profiles = []
-        if profiles:
-            self.profiles.extend(profiles.split(","))
-        if os.path.isfile(profile_file):
-            with open(profile_file) as f:
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        self.profiles.append(line)
+    def __init__(self, config):
+        self.config = config
+        self.basepath = config['common']['basepath']
+        self.profilesdir = config['common'].get("profilesdir", os.path.join(self.basepath, "profiles"))
+        self.profiles = [profile.strip() for profile in config['profiles']['active'].split(",") if profile.strip()]
         print("active profiles: " + " ".join(self.profiles))
 
     def read(self, resource):
         for profile in self.profiles:
             filepath = path.join(self.profilesdir, profile, resource.path)
             if path.exists(filepath):
-                with open(filepath) as f:
-                    resource.content = resource.content + "\n" + f.read()
+                with open(filepath, "rb") as f:
+                    resource.content += b'\n'
+                    resource.content += f.read()
 
     def collect_resources(self, resources):
         existing_pathes = [res.path for res in resources]
@@ -50,11 +43,3 @@ class Profiles:
 
     def transform_content(self, resources, resource):
         pass
-        # keypath = os.path.relpath(filepath, self.basepath)
-        # for profile in self.profiles:
-        #     extension_file = os.path.join(self.basepath, "profiles", profile, keypath)
-        #     if os.path.isfile(extension_file):
-        #         with open(extension_file) as f:
-        #             print("Using extension file {}".format(extension_file))
-        #             content += "\n" + f.read()
-        # return content
