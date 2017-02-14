@@ -14,6 +14,7 @@ setup(name='consync',
       install_requires=[
          'watchdog',
          'jinja2',
-         'requests'
+         'requests',
+          'python-consul'
       ],
       zip_safe=False)

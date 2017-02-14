@@ -1,7 +1,7 @@
 
 class Resource:
     def __init__(self, path):
-        self.content = ""
+        self.content = b''
         self.path = path
         self.sources = []
 

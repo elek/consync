@@ -1,3 +1,5 @@
+import re
+
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from jinja2 import TemplateNotFound
 from jinja2.loaders import BaseLoader
@@ -19,8 +21,8 @@ class ResourceLoader(BaseLoader):
 
 
 class Template:
-    def __init__(self, basedir):
-        self.basedir = basedir
+    def __init__(self, config):
+        self.config = config
 
     def read(self, resource):
         pass
@@ -32,15 +34,15 @@ class Template:
         return resources
 
     def transform_content(self, resources, resource):
-        if resource.path.endswith("keystore"):
-            return
-        loader = ResourceLoader(resources)
-        t = Environment(
-            loader=loader,
-            undefined=StrictUndefined,
-            variable_start_string="${",
-            variable_end_string="}"
-        ).from_string(resource.content.decode("utf-8"))
-        resource.content = t.render(os.environ).encode("utf-8")
-        resource.sources.extend([source for source in loader.included if source not in resource.sources])
-
+        if self.config['template'] and self.config['template']['pattern']:
+            pattern = self.config['template']['pattern']
+            if re.match(pattern, resource.path):
+                loader = ResourceLoader(resources)
+                t = Environment(
+                    loader=loader,
+                    undefined=StrictUndefined,
+                    variable_start_string="${",
+                    variable_end_string="}"
+                ).from_string(resource.content.decode("utf-8"))
+                resource.content = t.render(os.environ).encode("utf-8")
+                resource.sources.extend([source for source in loader.included if source not in resource.sources])

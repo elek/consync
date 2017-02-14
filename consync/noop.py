@@ -12,3 +12,7 @@ class Noop:
 
     def list(self):
         return[]
+
+
+    def close(self):
+        pass

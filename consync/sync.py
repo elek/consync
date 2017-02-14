@@ -3,7 +3,7 @@ import argparse
 import logging
 import os
 
-from consync.env import Env
+from consync.adapter_env import EnvAdapter
 from watchdog.events import FileSystemEventHandler
 import time
 from consync.noop import Noop
@@ -12,8 +12,8 @@ from consync.compose import Compose
 from consync.template import Template
 from consync.transform import Transform
 from consync.profiles import Profiles
-from consync.consul import Consul
-from consync.file import File
+from consync.adapter_consul import ConsulAdapter
+from consync.adapter_file import FileAdapter
 from watchdog.observers import Observer
 import configparser
 
@@ -41,11 +41,11 @@ class ConSync:
         self.args = args
         self.basepath = args.dir
         if self.args.file:
-            self.adapter = File(self.args.file)
+            self.adapter = FileAdapter(self.args.file)
         elif self.args.env:
-            self.adapter = Env(self.args.env)
+            self.adapter = EnvAdapter(self.args.env)
         else:
-            self.adapter = Consul(self.args.url, self.args.prefix)
+            self.adapter = ConsulAdapter(self.args.url, self.args.prefix)
 
         config = configparser.ConfigParser()
         config_file = os.path.join(args.dir, 'consync.ini')

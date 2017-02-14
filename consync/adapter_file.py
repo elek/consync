@@ -2,7 +2,7 @@ import os
 import errno
 
 
-class File:
+class FileAdapter:
     def __init__(self, basedir):
         self.basedir = basedir
 
@@ -26,3 +26,6 @@ class File:
                 pass
             else:
                 raise
+
+    def close(self):
+        pass

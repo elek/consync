@@ -17,7 +17,8 @@ class Profiles:
             filepath = path.join(self.profilesdir, profile, resource.path)
             if path.exists(filepath):
                 with open(filepath, "rb") as f:
-                    resource.content += b'\n'
+                    if len(resource.content) > 0:
+                        resource.content += b'\n'
                     resource.content += f.read()
 
     def collect_resources(self, resources):

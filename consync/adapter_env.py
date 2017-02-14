@@ -2,7 +2,7 @@ import os
 import errno
 
 
-class Env:
+class EnvAdapter:
     def __init__(self, prefix):
         self.prefix = prefix
         self.values = {}
