@@ -11,6 +11,7 @@ from consync.reader import Reader
 from consync.compose import Compose
 from consync.template import Template
 from consync.transform import Transform
+from consync.flag import Flag
 from consync.profiles import Profiles
 from consync.adapter_consul import ConsulAdapter
 from consync.adapter_file import FileAdapter
@@ -63,6 +64,7 @@ class ConSync:
 
         self.plugins = []
         self.plugins.append(Reader(config))
+        self.plugins.append(Flag(config))
         self.plugins.append(Compose(config))
         self.plugins.append(Profiles(config))
         self.plugins.append(Template(config))

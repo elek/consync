@@ -26,7 +26,7 @@ class ConsulAdapter:
 
     def write(self, resource):
         url = self.url(resource.path)
-        response = self.consul.kv.put(self.prefix + resource.path, resource.content)
+        response = self.consul.kv.put(self.prefix + resource.path, resource.content, flags = resource.flag)
         if not response:
             print("Error on uploading file {} to {}".format(resource.path, url))
 
