@@ -9,7 +9,9 @@ class Profiles:
         self.config = config
         self.basepath = config['common']['basepath']
         self.profilesdir = config['common'].get("profilesdir", os.path.join(self.basepath, "profiles"))
-        self.profiles = [profile.strip() for profile in config['profiles']['active'].split(",") if profile.strip()]
+        self.profiles = []
+        if 'profiles' in config:
+           self.profiles = [profile.strip() for profile in config['profiles']['active'].split(",") if profile.strip()]
         print("active profiles: " + " ".join(self.profiles))
 
     def read(self, resource):

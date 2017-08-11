@@ -6,8 +6,10 @@ from consync.resource import Resource
 
 class Reader:
     def __init__(self, config):
+        self.basepath = config['common']['basepath']
         self.config = config
-        self.confdir = os.path.join(self.config['common']['basepath'], "configuration")
+        print(config['common']['sourcedir'])
+        self.confdir = config['common'].get("sourcedir", os.path.join(self.basepath, "configuration"))
 
     def collect_resources(self, resources):
         for root, dirs, files in os.walk(self.confdir, topdown=True):

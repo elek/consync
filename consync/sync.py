@@ -8,7 +8,6 @@ from watchdog.events import FileSystemEventHandler
 import time
 from consync.noop import Noop
 from consync.reader import Reader
-from consync.compose import Compose
 from consync.template import Template
 from consync.transform import Transform
 from consync.flag import Flag
@@ -53,19 +52,20 @@ class ConSync:
         if os.path.exists(config_file):
             config.read(config_file)
 
-        config['common'] = {'basepath': self.basepath}
+        if not 'common' in config:
+            config['common'] = {}
+        config['common']['basepath'] = self.basepath
 
         profiles = ""
         if self.args.profiles:
             profiles += self.args.profiles
-        if config['profiles'].get("active",''):
+        if 'profiles' in config and config['profiles'].get("active",''):
             profiles += config['profiles']['active']
         config['profiles'] = {'active': profiles}
 
         self.plugins = []
         self.plugins.append(Reader(config))
         self.plugins.append(Flag(config))
-        self.plugins.append(Compose(config))
         self.plugins.append(Profiles(config))
         self.plugins.append(Template(config))
         if not self.args.env:
@@ -78,7 +78,6 @@ class ConSync:
             self.adapter = Noop()
             resources = self.collect()
             self.process(resources, resources)
-
             self.adapter = adapter
             self.clean(resources)
             event_handler = MyEventHandler(self, resources)
@@ -108,7 +107,7 @@ class ConSync:
         resources = []
         for plugin in self.plugins:
             plugin.collect_resources(resources)
-        logger.info(resources)
+        logger.info("Found resources:" + str(resources))
         return resources
 
     def process(self, all_resources, resources):
