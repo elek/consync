@@ -14,4 +14,4 @@ The source directory should be a specific format:
  * ```profiles``` sub directory contains the available profiles
  * ```transformation``` contains the activa transformation (pattern transformation)
  
- Example configuration: the consul directory of the http://github.com/elek/bigdata-docker/
+ Example configuration: the consul directory of the https://github.com/flokkr/runtime-compose/ and https://github.com/flokkr/configuration
