@@ -1,17 +1,15 @@
 # Configuration synchronizer to consul
 
-The python scripts syncrhonize configuration files to consul with additional transformation:
+The golang script to syncrhonize configuration files to consul with additional transformation:
 
- * Appending additional files according to the activated profiles
- * execute jinja2 template engine
+ * Appending additional files according to the activated profiles (wip)
+ * execute go template engine
  * transform key values to other format
  
 
-The source directory should be a specific format:
+The source directory should have a specific structure.
 
  * ```configuration``` sub directory contains the configuration files
- * ```profiles.txt``` contains the activated profiles
  * ```profiles``` sub directory contains the available profiles
- * ```transformation``` contains the activa transformation (pattern transformation)
  
  Example configuration: the consul directory of the https://github.com/flokkr/runtime-compose/ and https://github.com/flokkr/configuration
