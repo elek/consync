@@ -75,6 +75,7 @@ func (r ReadPlugin) transformContent(resources *[]Resource, resource *Resource) 
 func Run() {
 	var rootdir = flag.String("dir", ".", "Configuration directory structure")
 	var consulHost = flag.String("consul", "", "Host of the consul server")
+	var discovery = flag.String("discovery", "static", "Service discovery type (static,dns,consul)")
 	flag.Parse()
 	config, err := toml.LoadFile(path.Join(*rootdir, "consync.ini"))
 	if err != nil {
@@ -92,7 +93,7 @@ func Run() {
 	}
 	plugins := []Plugin{
 		ReadPlugin{*rootdir, config},
-		TemplatePlugin{config},
+		TemplatePlugin{config, discovery},
 		TransformPlugin{config},
 	}
 	resources := make([]Resource, 0)

@@ -2,12 +2,13 @@ package consync
 
 import (
 	"bytes"
-	"html/template"
+	"text/template"
 	"os"
 )
 
 type TemplatePlugin struct {
 	configuration Configuration
+	discovery     *string
 }
 
 func (TemplatePlugin) collectResources(resources []Resource) ([]Resource, error) {
@@ -18,20 +19,40 @@ func (TemplatePlugin) collectResources(resources []Resource) ([]Resource, error)
 func (TemplatePlugin) read(resource *Resource) error {
 	return nil
 }
-func service(name string) string {
+
+type DiscoveryFunc func(string) string
+
+func dnsDiscovery(name string) string {
+	return name;
+}
+func staticDiscovery(name string) string {
 	if gateway, defined := os.LookupEnv("GATEWAY_HOST"); defined {
 		return gateway
 	} else {
-		return name
+		return "localhost"
 	}
 }
-func (TemplatePlugin) transformContent(resources *[]Resource, resource *Resource) error {
+func consulDiscovery(name string) string {
+	//return "x"
+	return "{{ service \"" + name + "\" | hosts \".\"}}"
+}
+func getDiscoveries() map[string]DiscoveryFunc {
+	result := make(map[string]DiscoveryFunc)
+	result["dns"] = dnsDiscovery
+	result["consul"] = consulDiscovery
+	result["static"] = staticDiscovery
+	return result
+}
+
+func (plugin TemplatePlugin) transformContent(resources *[]Resource, resource *Resource) error {
 	var err error
+
 	funcmap := template.FuncMap{
-		"service": service,
+		"service": getDiscoveries()[*plugin.discovery],
 	}
 	tmpl := template.New(resource.name)
 	tmpl = tmpl.Funcs(funcmap)
+	tmpl = tmpl.Delims("[[", "]]")
 	tmpl, err = tmpl.Parse(resource.content)
 	if err != nil {
 		return err
@@ -40,6 +61,7 @@ func (TemplatePlugin) transformContent(resources *[]Resource, resource *Resource
 	for _, rsc := range *resources {
 
 		tmpl = tmpl.New(rsc.name)
+	 	tmpl = tmpl.Delims("[[", "]]")
 		tmpl, err = tmpl.Parse(rsc.content)
 		if err != nil {
 			return err
