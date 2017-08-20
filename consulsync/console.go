@@ -1,6 +1,9 @@
 package consync
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type ConsolAdapter struct {
 
@@ -8,7 +11,7 @@ type ConsolAdapter struct {
 
 func (ConsolAdapter) write(resource Resource) error {
 	fmt.Println("===================")
-	fmt.Println(resource.path)
+	fmt.Println(resource.path + "(" + strconv.Itoa(resource.flag) + ")")
 	fmt.Println(resource.sources)
 	fmt.Println("-------------------")
 	fmt.Println(resource.content)

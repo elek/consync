@@ -15,6 +15,7 @@ type Resource struct {
 	path    string
 	content string
 	sources []string
+	flag    int
 }
 
 func (resource *Resource) String() string {
@@ -46,7 +47,7 @@ func (r ReadPlugin) collectResources(resources []Resource) ([]Resource, error) {
 		if (!file.IsDir()) {
 			relpath, _ := filepath.Rel(configdir, path)
 			if (!strings.HasPrefix(relpath, ".")) {
-				resource := Resource{relpath, path, "", []string{relpath}}
+				resource := Resource{relpath, path, "", []string{relpath}, 0}
 				result = append(result, resource)
 			}
 		}
@@ -94,6 +95,7 @@ func Run() {
 	plugins := []Plugin{
 		ReadPlugin{*rootdir, config},
 		TemplatePlugin{config, discovery},
+		FlagPlugin{config},
 		TransformPlugin{config},
 	}
 	resources := make([]Resource, 0)
