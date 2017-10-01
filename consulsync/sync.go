@@ -77,7 +77,15 @@ func Run() {
 	var rootdir = flag.String("dir", ".", "Configuration directory structure")
 	var consulHost = flag.String("consul", "", "Host of the consul server")
 	var discovery = flag.String("discovery", "static", "Service discovery type (static,dns,consul)")
+	var profilesstr = flag.String("profiles", "", "Activated profiles (from the profiles directory)")
 	flag.Parse()
+
+	var profiles = strings.Split(*profilesstr, ",")
+
+	if len(profiles) == 1 && profiles[0] == "" {
+		profiles = []string{}
+	}
+
 	config, err := toml.LoadFile(path.Join(*rootdir, "consync.ini"))
 	if err != nil {
 		panic(err)
@@ -94,6 +102,7 @@ func Run() {
 	}
 	plugins := []Plugin{
 		ReadPlugin{*rootdir, config},
+		ProfilePlugin{*rootdir, config, profiles},
 		TemplatePlugin{config, discovery},
 		FlagPlugin{config},
 		TransformPlugin{config},
