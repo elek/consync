@@ -1,3 +1,18 @@
+# !Archived!
+
+__This project is archived. Originally it was part of the https://github.com/flokkr project, but it's no longer maintained.__
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
 # Configuration synchronizer to consul
 
 The golang script to syncrhonize configuration files to consul with additional transformation:
